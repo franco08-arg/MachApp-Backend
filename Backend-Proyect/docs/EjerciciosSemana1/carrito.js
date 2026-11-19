@@ -1,4 +1,4 @@
-// 1. Crear el carrito con 4 productos
+  // 1. Crear el carrito con 4 productos
 const carrito = [
   { nombre: "Laptop", precio: 10 },
   { nombre: "Mouse", precio: 20 },
@@ -10,8 +10,11 @@ const carrito = [
 console.log("Cantidad de productos:", carrito.length);
 
 // 3. Mostrar el primer y el último producto
-console.log("Primer producto:", carrito[0]);
-console.log("Último producto:", carrito[carrito.length - 1]);
+const primerProducto = carrito[0];
+const ultimoProducto = carrito[carrito.length - 1];
+
+console.log("Primer producto:", primerProducto.nombre, "- S/", primerProducto.precio);
+console.log("Último producto:", ultimoProducto.nombre, "- S/", ultimoProducto.precio);
 
 // 4. Calcular el total usando un bucle for
 let total = 0;
