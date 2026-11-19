@@ -12,11 +12,12 @@ app.get("/", (req, res) => {
   res.redirect("/api-docs");
 });
 
-// req (request), res (response), res.json (respuesta en formato JSON)
+// 1. Ruta de saludo
 app.get("/api/saludo", (req, res) => {
   res.json({ mensaje: "Hola desde mi API" });
 });
 
+// 2. Ruta de información personal
 app.get("/api/yo", (req, res) => {
   res.json({
     nombre: "Ardey",
@@ -24,17 +25,27 @@ app.get("/api/yo", (req, res) => {
   });
 });
 
+// 3. Ruta con parámetro para calcular edad
 app.get("/api/edad/:anio", (req, res) => {
-  const Año = Number(req.params.anio);
-  const añoActual = new Date().getFullYear();
+  const anio = Number(req.params.anio);
+  const anioActual = new Date().getFullYear();
 
-  if (!Number.isInteger(Año) || Año < 1900 || Año > añoActual) {
+  if (!Number.isInteger(anio) || anio < 1900 || anio > anioActual) {
     return res.status(400).json({ error: "El año de nacimiento debe ser un número válido" });
   }
 
   res.json({
-    año: Año,
-    edad: añoActual - Año
+    anio,
+    edad: anioActual - anio
+  });
+});
+
+// 4. Ruta de estado del servidor
+app.get("/api/estado", (req, res) => {
+  res.json({
+    ok: true,
+    estado: "activo",
+    uptimeSegundos: Math.floor(process.uptime())
   });
 });
 
@@ -44,5 +55,3 @@ app.use((req, res) => {
 });
 
 app.listen(PORT, () => console.log(`API lista en http://localhost:${PORT}`));
-
-//probanco ndjas
