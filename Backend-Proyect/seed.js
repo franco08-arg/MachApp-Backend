@@ -61,45 +61,60 @@ const usuarios = [
 
 const interacciones = [
   ["ana.quispe@ejemplo.com", "carlos.mendoza@ejemplo.com"],
-  ["ana.quispe@ejemplo.com", "valeria.flores@ejemplo.com"],
   ["carlos.mendoza@ejemplo.com", "valeria.flores@ejemplo.com"],
-  ["diego.salazar@ejemplo.com", "ana.quispe@ejemplo.com"],
   ["valeria.flores@ejemplo.com", "diego.salazar@ejemplo.com"],
-  ["maria.castillo@ejemplo.com", "diego.salazar@ejemplo.com"],
+  ["diego.salazar@ejemplo.com", "maria.castillo@ejemplo.com"],
+  ["maria.castillo@ejemplo.com", "ana.quispe@ejemplo.com"],
 ];
 
 const parejas = [
   ["ana.quispe@ejemplo.com", "carlos.mendoza@ejemplo.com"],
   ["carlos.mendoza@ejemplo.com", "valeria.flores@ejemplo.com"],
-  ["diego.salazar@ejemplo.com", "valeria.flores@ejemplo.com"],
+  ["valeria.flores@ejemplo.com", "diego.salazar@ejemplo.com"],
+  ["diego.salazar@ejemplo.com", "maria.castillo@ejemplo.com"],
+  ["maria.castillo@ejemplo.com", "ana.quispe@ejemplo.com"],
 ];
 
 const conversaciones = [
   {
     pareja: ["ana.quispe@ejemplo.com", "carlos.mendoza@ejemplo.com"],
-    mensajes: [
-      ["ana.quispe@ejemplo.com", "¡Hola Carlos! Me gustó tu perfil", "2026-11-19T10:00:00Z"],
-      ["carlos.mendoza@ejemplo.com", "¡Hola Ana! Gracias, igualmente", "2026-11-19T10:02:00Z"],
-      ["carlos.mendoza@ejemplo.com", "¿Te gustaría tomar un café?", "2026-11-19T10:03:00Z"],
-    ],
+    emisor: "ana.quispe@ejemplo.com",
+    contenido: "¡Hola Carlos! Me gustó tu perfil",
+    creado: "2026-11-19T10:00:00Z",
   },
   {
     pareja: ["carlos.mendoza@ejemplo.com", "valeria.flores@ejemplo.com"],
-    mensajes: [
-      ["carlos.mendoza@ejemplo.com", "Hola Valeria, ¿cómo estás?", "2026-11-19T11:00:00Z"],
-      ["valeria.flores@ejemplo.com", "Hola Carlos, muy bien ¿y tú?", "2026-11-19T11:01:00Z"],
-    ],
+    emisor: "carlos.mendoza@ejemplo.com",
+    contenido: "Hola Valeria, ¿cómo estás?",
+    creado: "2026-11-19T11:00:00Z",
   },
   {
-    pareja: ["diego.salazar@ejemplo.com", "valeria.flores@ejemplo.com"],
-    mensajes: [
-      ["diego.salazar@ejemplo.com", "¡Hola! Encantado de conocerte", "2026-11-19T12:00:00Z"],
-      ["valeria.flores@ejemplo.com", "¡Hola Diego! El gusto es mío", "2026-11-19T12:05:00Z"],
-    ],
+    pareja: ["valeria.flores@ejemplo.com", "diego.salazar@ejemplo.com"],
+    emisor: "valeria.flores@ejemplo.com",
+    contenido: "¡Hola Diego! Encantada de conocerte",
+    creado: "2026-11-19T12:00:00Z",
+  },
+  {
+    pareja: ["diego.salazar@ejemplo.com", "maria.castillo@ejemplo.com"],
+    emisor: "diego.salazar@ejemplo.com",
+    contenido: "Hola María, ¿qué tal tu día?",
+    creado: "2026-11-19T13:00:00Z",
+  },
+  {
+    pareja: ["maria.castillo@ejemplo.com", "ana.quispe@ejemplo.com"],
+    emisor: "maria.castillo@ejemplo.com",
+    contenido: "¡Hola Ana! Gracias por conectar",
+    creado: "2026-11-19T14:00:00Z",
   },
 ];
 
 async function main() {
+  await prisma.message.deleteMany();
+  await prisma.match.deleteMany();
+  await prisma.interaction.deleteMany();
+  await prisma.emailVerificationToken.deleteMany();
+  await prisma.user.deleteMany();
+
   const usuariosGuardados = [];
 
   for (const usuario of usuarios) {
@@ -160,18 +175,13 @@ async function main() {
       where: { user1_id_user2_id: { user1_id, user2_id } },
     });
 
-    const total = await prisma.message.count({ where: { match_id: match.id } });
-    if (total > 0) {
-      continue;
-    }
-
-    await prisma.message.createMany({
-      data: conversacion.mensajes.map(([email, content, created_at]) => ({
+    await prisma.message.create({
+      data: {
         match_id: match.id,
-        sender_id: idDe(email),
-        content,
-        created_at: new Date(created_at),
-      })),
+        sender_id: idDe(conversacion.emisor),
+        content: conversacion.contenido,
+        created_at: new Date(conversacion.creado),
+      },
     });
   }
 
@@ -182,7 +192,7 @@ async function main() {
     matches: await prisma.match.count(),
     messages: await prisma.message.count(),
   };
-  console.log("Datos registrados:", conteos);
+  console.log("Datos registrados (5 por tabla):", conteos);
 }
 
 main()
