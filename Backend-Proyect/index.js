@@ -1,5 +1,6 @@
 const express = require("express"); // forma clásica de importar express con node
 const swaggerUi = require("swagger-ui-express");
+const { z } = require("zod");
 const openapi = require("./docs/openapi.js");
 
 const app = express();
@@ -27,12 +28,19 @@ app.get("/api/yo", (req, res) => {
 
 // 3. Ruta con parámetro para calcular edad
 app.get("/api/edad/:anio", (req, res) => {
-  const anio = Number(req.params.anio);
   const anioActual = new Date().getFullYear();
+  const resultado = z.coerce
+    .number()
+    .int()
+    .min(1900)
+    .max(anioActual)
+    .safeParse(req.params.anio);
 
-  if (!Number.isInteger(anio) || anio < 1900 || anio > anioActual) {
+  if (!resultado.success) {
     return res.status(400).json({ error: "El año de nacimiento debe ser un número válido" });
   }
+
+  const anio = resultado.data;
 
   res.json({
     anio,
